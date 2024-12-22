@@ -1,6 +1,8 @@
 import orderModel from "../models/orderModel.js";
-import userModel from "../models/userModel.js";
+import userModel from "../models/User.Model.js";
 import Stripe from "stripe";
+
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 //placing user order for frontend
 const placeOrder = async (req, res) => {
@@ -11,7 +13,7 @@ const placeOrder = async (req, res) => {
       userId: req.body.userId,
       items: req.body.items,
       amount: req.body.amount,
-      adress: req.body.adress,
+      address: req.body.address,
     });
     //To save the order in the databse.
     await newOrder.save();
@@ -45,8 +47,8 @@ const placeOrder = async (req, res) => {
       line_items: line_items,
       mode: "payment",
       //If the payment succeed, redirecting to the success URL.Otherwise, cancel URL.
-      success_url: `${frontend_url}/ verify? success = true&orderId = ${newOrder._id}`,
-      cancel_url: `${frontend_url}/ verify? success = false&orderId = ${newOrder._id}`,
+      success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
+      cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`,
     });
     //We send URL as a response.
     res.json({ success: true, session_url: session.url });
@@ -55,20 +57,52 @@ const placeOrder = async (req, res) => {
     res.json({ success: false, message: "Error" });
   }
 };
+const userOrders = async (req, res) => {
+  try {
+    const orders = await orderModel.find({ userId: req.body.userId });
+    res.json({ success: true, data: orders });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error" });
+  }
+};
+// Listing orders for admin panel
+const listOrders = async (req, res) => {
+  try {
+    const orders = await orderModel.find({});
+    res.json({ success: true, data: orders });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error" });
+  }
+};
+// api for updating order status
+const updateStatus = async (req, res) => {
+  try {
+    await orderModel.findByIdAndUpdate(req.body.orderId, {
+      status: req.body.status,
+    });
+    res.json({ success: true, messege: "Status Updated" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error" });
+  }
+};
+
 //To verify the payment
 const verifyOrder = async (req, res) => {
   const { orderId, success } = req.body;
   try {
-    if (success == "true") {
+    if (success === "true") {
       await orderModel.findByIdAndUpdate(orderId, { payment: true });
       res.json({ success: true, message: "Paid" });
     } else {
       await orderModel.findByIdAndDelete(orderId);
-      res.json({ seuccess: false, message: "Not Paid" });
+      res.json({ success: false, message: "Not Paid" });
     }
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "Error" });
   }
 };
-export { placeOrder };
+export { placeOrder, verifyOrder, userOrders, listOrders, updateStatus };

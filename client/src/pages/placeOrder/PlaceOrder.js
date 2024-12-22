@@ -1,11 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import "./PlaceOrder.css";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PlaceOrder = () => {
   const { getTotalCartAmount, token, food_list, cartItems, url } =
     useContext(StoreContext);
+
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
@@ -18,8 +20,9 @@ const PlaceOrder = () => {
   const onChangeHandler = (event) => {
     const name = event.target.name;
     const value = event.target.value;
-    setData((data) => ({ ...data, [name]: value }));
+    setData(data => ({ ...data, [name]: value }));
   };
+
   const placeOrder = async (event) => {
     event.preventDefault();
     let orderItems = [];
@@ -30,6 +33,9 @@ const PlaceOrder = () => {
         orderItems.push(itemInfo);
       }
     });
+    
+
+
     let orderData = {
       address: data,
       items: orderItems,
@@ -43,8 +49,21 @@ const PlaceOrder = () => {
       window.location.replace(session_url);
     } else {
       alert("Error");
+       console.log(response.data);
     }
+    console.log("Order Data:", orderData);
+    console.log("Response Data:", response.data);
+   
   };
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!token) {
+      navigate("/cart");
+    } else if (getTotalCartAmount() === 0) {
+      navigate("/cart");
+    }
+  }, [token]);
 
   return (
     <form onSubmit={placeOrder} className="place-order">
@@ -63,7 +82,7 @@ const PlaceOrder = () => {
             required
             name="lastName"
             onChange={onChangeHandler}
-            vale={data.lastName}
+            value={data.lastName}
             type="text"
             placeholder="Last Name"
           />
@@ -72,7 +91,7 @@ const PlaceOrder = () => {
           required
           name="email"
           onChange={onChangeHandler}
-          vale={data.email}
+          value={data.email}
           type="email"
           placeholder="Email address"
         />
