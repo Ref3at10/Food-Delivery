@@ -1,1 +1,4 @@
 # Food-Delivery
+Introducing "Tomato," a full-stack food delivery website developed by our team using the MERN stack—MongoDB, Express.js, React, and Node.js. This project offers a seamless user experience with features such as user authentication, a dynamic frontend supporting responsive design, and a robust backend integrated with MongoDB. Additionally, it includes a secure payment system powered by Stripe and an intuitive admin panel, also offering theme versatility.
+
+Our team, comprising dedicated software developers, embarked on this project to deepen our understanding of full-stack development and to create a functional, user-friendly application that addresses real-world needs. We meticulously designed "Tomato" to ensure a responsive and engaging user interface, coupled with a secure and efficient backend infrastructure.
